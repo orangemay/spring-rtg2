@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import com.example.demo2.div.Div;
 import com.example.demo2.div.DivRepository;
+import com.example.demo2.user.UserPageResponse;
 
 @RestController
 @RequestMapping("/api/user")
@@ -25,6 +26,8 @@ public class UserController{
     Logger logger = LoggerFactory.getLogger(UserController.class);
     String DEFAULT_PICTURE = "default.png";
 
+    int rowNumPerPage = 3;
+
     @Autowired
     private UserRepository userRep;
     @Autowired
@@ -32,8 +35,28 @@ public class UserController{
 
     // アクション  APIのエンドポイント
     @GetMapping("")
-    public List<User> getUsers(){
-        return userRep.findAll();
+    public UserPageResponse getUsers(){
+        //return userRep.findAll();
+        return getUsersByPageNo(0);
+    }
+
+    // ページ番号付きユーザーリスト
+    @GetMapping("/page/{no}")
+    public UserPageResponse getUsersByPageNo(@PathVariable( name="no") int pageNo){
+        long totalCount = userRep.count();
+        int offset = 0;
+        if(pageNo > 0){
+            offset = ((pageNo - 1) * rowNumPerPage) <= totalCount ? ((pageNo - 1) * rowNumPerPage): 0;
+        } else {
+            pageNo = 1;
+        }
+        List<User> users =  userRep.getUsersByPageNo(this.rowNumPerPage, offset);
+        return new UserPageResponse(totalCount, pageNo, this.rowNumPerPage, users);
+    }
+
+    @GetMapping("/total")
+    public long getUsersTotalCount(){
+        return userRep.count();
     }
 
     // GETパラメーター付きのアクション
@@ -44,9 +67,6 @@ public class UserController{
 
     @PostMapping("create")
     public int createUserOne(@RequestBody User user){
-        logger.warn(user.getName());
-        logger.warn(user.getMail());
-
         // フロントから渡ってこないカラムについてデフォルト値をセット
         user.setJoinedAt(LocalDateTime.now());
         user.setPicture(DEFAULT_PICTURE);
