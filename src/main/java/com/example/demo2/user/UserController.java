@@ -50,6 +50,16 @@ public class UserController{
         } else {
             pageNo = 1;
         }
+
+        /**
+        if (pageNo <= 0) {
+          pageNo = 1;
+        }
+        offset = (pageNo - 1) * rowNumPerPage;
+        if (offset > totalCount) {
+          offset = 0;
+        }
+        **/
         List<User> users =  userRep.getUsersByPageNo(this.rowNumPerPage, offset);
         return new UserPageResponse(totalCount, pageNo, this.rowNumPerPage, users);
     }
