@@ -36,7 +36,7 @@ public class UserController{
     // アクション  APIのエンドポイント
     @GetMapping("")
     public UserPageResponse getUsers(){
-        //return userRep.findAll();
+        // return userRep.findAll();
         return getUsersByPageNo(0);
     }
 
@@ -44,6 +44,7 @@ public class UserController{
     @GetMapping("/page/{no}")
     public UserPageResponse getUsersByPageNo(@PathVariable( name="no") int pageNo){
         long totalCount = userRep.count();
+        logger.warn("トータルカウント:" + totalCount);
         int offset = 0;
         if(pageNo > 0){
             offset = ((pageNo - 1) * rowNumPerPage) <= totalCount ? ((pageNo - 1) * rowNumPerPage): 0;
@@ -79,9 +80,11 @@ public class UserController{
     public int createUserOne(@RequestBody User user){
         // フロントから渡ってこないカラムについてデフォルト値をセット
         user.setJoinedAt(LocalDateTime.now());
-        user.setPicture(DEFAULT_PICTURE);
+        //user.setPicture(DEFAULT_PICTURE);
+        logger.warn(user.getName());
+        logger.warn(user.getPicture());
+        logger.warn(user.getStorageFileName());
         Div d1 = divRep.findById(1).orElseThrow();
-        logger.warn(d1.getName());
         user.setDiv(d1);
         userRep.save(user);
         return user.getId();
