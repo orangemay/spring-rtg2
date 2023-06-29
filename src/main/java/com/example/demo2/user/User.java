@@ -31,6 +31,9 @@ public class User {
     @Column(name="picture")
     private String picture;  // 画像ファイルのパス
 
+    @Column(name="storage_file_name")
+    private String storageFileName;
+
     @Column(name="joined_at")
     private LocalDateTime joinedAt;
 
